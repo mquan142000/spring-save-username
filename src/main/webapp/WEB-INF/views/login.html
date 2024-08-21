@@ -6,6 +6,7 @@
 </head>
 <body>
 <h1>User Login</h1>
+<h2 th:text="${loginCount}"></h2>
 <form action="#" th:action="@{/doLogin}" th:object="${user}" method="post">
   <table border="0">
     <tr>

@@ -14,40 +14,48 @@ import javax.servlet.http.HttpServletResponse;
 @SessionAttributes("user")
 public class LoginController {
 
-    /*add user in model attribute*/
+
     @ModelAttribute("user")
     public User setUpUserForm() {
         return new User();
     }
 
     @RequestMapping("/login")
-    public String Index(@CookieValue(value = "setUser", defaultValue = "") String setUser, Model model) {
-        Cookie cookie = new Cookie("setUser", setUser);
-        model.addAttribute("cookieValue", cookie);
+    public String Index(@CookieValue(value = "setUser", defaultValue = "") String setUser,
+                        @CookieValue(value = "loginCount", defaultValue = "0") Long counter,
+                        HttpServletResponse response, Model model) {
+        counter++;
+        Cookie loginCountCookie = new Cookie("loginCount", String.valueOf(counter));
+        loginCountCookie.setMaxAge(10);
+        response.addCookie(loginCountCookie);
+        Cookie userCookie = new Cookie("setUser", setUser);
+        model.addAttribute("cookieValue", userCookie);
+        model.addAttribute("loginCount", counter);
         return "/login";
     }
+
 
     @PostMapping("/doLogin")
     public String doLogin(@ModelAttribute("user") User user, Model model,
                           @CookieValue(value = "setUser", defaultValue = "") String setUser,
                           HttpServletResponse response, HttpServletRequest request) {
-        // implement business logic
+
         if (user.getEmail().equals("admin@gmail.com")
                 && user.getPassword().equals("123456")) {
             if (user.getEmail() != null) {
                 setUser = user.getEmail();
             }
 
-            // create cookie and set it in response
+
             Cookie cookie = new Cookie("setUser", setUser);
-            cookie.setMaxAge(24 * 60 * 60);
+            cookie.setMaxAge(10);
             response.addCookie(cookie);
 
-            // get all cookies
+
             Cookie[] cookies = request.getCookies();
-            // iterate each cookie
+
             for (Cookie ck : cookies) {
-                // display only the cookie with the name 'setUser'
+
                 if (!ck.getName().equals("setUser")) {
                     ck.setValue("");
                 }
